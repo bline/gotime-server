@@ -1,0 +1,55 @@
+syntax = "proto3";
+
+package api;
+
+import "common.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/duration.proto";
+
+service TimeSheet {
+	rpc ClockIn (ClockRequest) returns (api.SimpleResponse);
+	rpc ClockOut (ClockRequest) returns (api.SimpleResponse);
+	rpc GetCurrentStatus (ClockRequest) returns (TSStatusResponse);
+	rpc GetEntries (TimeSheetRequest) returns (stream TimeEntry);
+}
+
+message ClockRequest {
+	enum EntryType {
+		Work = 0;
+		Break = 1;
+	}
+	EntryType Type = 1;
+}
+
+message TimeSheetRequest {
+	api.SearchOptions Options = 1;
+	google.protobuf.Timestamp StartTime = 2;
+	google.protobuf.Timestamp EndTime = 3;
+	oneof UserIdent {
+		string Email = 4;
+		int64 UserID = 5;
+	}
+}
+
+message TSStatusResponse {
+	enum Status {
+		ClockedOut = 0;
+		ClockedIn = 1;
+	}
+	Status State = 1;
+	google.protobuf.Timestamp Timestamp = 2;
+	google.protobuf.Duration LastWorked = 3;
+}
+
+
+message TimeEntry {
+	int64 ID = 1;
+	string UserID = 2;
+	google.protobuf.Timestamp Timestamp = 3;
+	enum Status {
+		ClockedOut = 0;
+		ClockedIn  = 1;
+	}
+	Status State = 4;
+}
+

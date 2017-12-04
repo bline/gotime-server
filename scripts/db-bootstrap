@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+MYSQL_HOST=${MYSQL_TCP_HOST:-localhost}
+MYSQL_PORT=${MYSQL_TCP_PORT:-3306}
+MYSQL_USER=${MYSQL_USER:-root}
+MYSQL_PASS=${MYSQL_PASS:-""}
+
+for dbname in "gotime-server" "gotime-server_test"; do
+    dbname=${dbname//\-/_}
+
+    echo "Creating database $dbname..."
+    if [ -z "$MYSQL_PWD" ]; then
+	    mysqladmin -P$MYSQL_PORT -h$MYSQL_HOST -u$MYSQL_USER create $dbname
+    else
+	    mysqladmin -P$MYSQL_PORT -h$MYSQL_HOST -u$MYSQL_USER -p$MYSQL_PASS create $dbname
+    fi
+
+    MYSQL_DSN="mysql://$MYSQL_USER:$MYSQL_PASS@tcp($MYSQL_HOST:$MYSQL_PORT)/$dbname?parseTime=true"
+    echo "Running migrations on '$MYSQL_DSN'..."
+    migrate -source "$MYSQL_DSN" -path $SCRIPT_DIR/../migrations up
+done

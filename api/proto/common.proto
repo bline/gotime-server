@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package api;
+
+message SimpleResponse {
+	bool IsSuccess = 1;
+	string Message = 2;
+}
+
+message SearchOptions {
+	string Query = 1;
+	uint32 Page = 2;
+	uint32 PerPage = 3;
+}
+

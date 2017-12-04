@@ -1,0 +1,62 @@
+syntax = "proto3";
+
+package api;
+
+import "common.proto";
+import "google/protobuf/timestamp.proto";
+
+
+service Accounts {
+	rpc GetUser(GetUserRequest) returns (User);
+	rpc GetUsers(GetUsersRequest) returns (stream User);
+	rpc DisableUser(DisableUserRequest) returns (SimpleResponse);
+	rpc DeleteUser(DeleteUserRequest) returns (SimpleResponse);
+	rpc LockUser(LockUserRequest) returns (SimpleResponse);
+}
+
+message EmailOrId {
+	oneof UserIdent {
+		string Email = 1;
+		int64 UserID = 2;
+	}
+}
+
+message LockUserRequest {
+	EmailOrId Ident = 1;
+}
+
+message DisableUserRequest {
+	EmailOrId Ident = 1;
+}
+
+message DeleteUserRequest {
+	EmailOrId Ident = 1;
+}
+
+message DeleteUserResponse {
+	bool Success = 1;
+	string Message = 2;
+}
+
+message GetUserRequest {
+	EmailOrId Ident = 1;
+}
+
+message GetUsersRequest {
+	api.SearchOptions SearchOptions = 1;
+	bool IsDeleted = 2;
+	bool IsDisabled = 3;
+	bool IsLockedOut = 4;
+}
+
+message User {
+	int64 ID = 1;
+	string Email = 2;
+	string Token = 3;
+	google.protobuf.Timestamp LastLogin = 4;
+	google.protobuf.Timestamp LockedOut = 5;
+	bool IsDisabled = 6;
+	bool IsDeleted = 7;
+	bool IsLockedOut = 8;
+}
+
